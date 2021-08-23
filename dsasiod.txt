@@ -1,0 +1,281 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+#include <time.h>  
+
+ 
+ 
+#define PC 1
+#define Player 2
+
+struct move 
+{
+  
+int stacki;
+   
+int stackdrop;
+ 
+};
+
+ 
+ 
+void
+printState (int stacks[], int n) 
+{
+  
+int i;
+  
+printf ("Game Status : ");
+  
+for (i = 0; i < n; i++)
+    
+printf ("%d ", stacks[i]);
+  
+printf ("\n");
+  
+return;
+
+}
+
+
+ 
+ 
+bool won (int stacks[], int n) 
+{
+  
+int i;
+  
+for (i = 0; i < n; i++)
+    
+if (stacks[i] != 0)
+      
+return (false);
+  
+ 
+return (true);
+
+}
+
+
+ 
+ 
+void
+printWinner (int turn) 
+{
+  
+if (turn == PC)
+    
+printf ("\nPlayer won\n\n");
+  
+  else
+    
+printf ("\nPC won\n\n");
+  
+return;
+
+}
+
+
+ 
+ 
+int
+sumofmoves (int stacks[], int n) 
+{
+  
+int i, smoves = stacks[0];
+  
+for (i = 1; i < n; i++)
+    
+smoves = smoves ^ stacks[i];
+  
+return (smoves);
+
+ 
+}
+
+
+int min = 0;
+
+int max = 0;
+
+ 
+void
+movestack (int stacks[], int n, struct move *stackmoves) 
+{
+  
+int i, move_sum = sumofmoves (stacks, n);
+  
+ 
+ 
+if (move_sum != 0)
+    
+    {
+      
+for (i = 0; i < n; i++)
+	
+	{
+	  
+if ((stacks[i] ^ move_sum) < stacks[i])
+	    
+	    {
+	      
+(*stackmoves).stacki = i;
+	      
+(*stackmoves).stackdrop = 
+stacks[i] - (stacks[i] ^ move_sum);
+	      
+stacks[i] = (stacks[i] ^ move_sum);
+	      
+min++;
+	      
+break;
+	    
+}
+	
+}
+    
+}
+  
+ 
+ 
+  else
+    
+    {
+      
+int ix[n], count;
+      
+ 
+for (i = 0, count = 0; i < n; i++)
+	
+if (stacks[i] > 0)
+	  
+ix[count++] = i;
+      
+ 
+(*stackmoves).stacki = (rand () % (count));
+      
+(*stackmoves).stackdrop =
+	
+1 + (rand () % (stacks[(*stackmoves).stacki]));
+      
+stacks[(*stackmoves).stacki] =
+	
+stacks[(*stackmoves).stacki] - (*stackmoves).stackdrop;
+      
+ 
+if (stacks[(*stackmoves).stacki] < 0)
+	
+stacks[(*stackmoves).stacki] = 0;
+      
+max++;
+    
+}
+  
+return;
+
+}
+
+
+ 
+ 
+void
+start (int stacks[], int n, int turn) 
+{
+  
+struct move stackmoves;
+  
+int times = 0;
+  
+ 
+while (won (stacks, n) == false)
+    
+    {
+      
+times++;
+      
+printState (stacks, n);
+      
+ 
+movestack (stacks, n, &stackmoves);
+      
+ 
+if (turn == PC)
+	
+	{
+	  
+turn = Player;
+	
+}
+      
+      else
+	
+	{
+	  
+turn = PC;
+	
+}
+    
+}
+  
+ 
+printState (stacks, n);
+  
+printf ("The number of states evaluated by the algorithm : ");
+  
+printf ("%d", times);
+  
+printf ("\n");
+  
+printf ("number of levels (depth) of the game tree : ");
+  
+printf ("%d", times + 1);
+  
+printf ("\n");
+  
+printf ("The number of times max function executes : ");
+  
+printf ("%d", max);
+  
+printf ("The number of times min function executes : ");
+  
+printf ("%d", min);
+  
+printWinner (turn);
+  
+return;
+
+}
+
+
+ 
+int
+main () 
+{
+  
+clock_t begin = clock ();
+  
+ 
+int stacks[] = { 2, 3, 4 };
+  
+int n = sizeof (stacks) / sizeof (stacks[0]);
+  
+ 
+ 
+start (stacks, n, PC);
+  
+clock_t end = clock ();
+  
+double time_spent = (double) (end - begin) / CLOCKS_PER_SEC;
+  
+printf ("Execution time of the program in milli seconds : ");
+  
+printf ("%f", time_spent);
+  
+ 
+ 
+return (0);
+
+}
+
+
